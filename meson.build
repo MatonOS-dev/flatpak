@@ -207,7 +207,6 @@ endif
 xau_dep = dependency('xau', required : get_option('xauth'))
 libostree_dep = dependency('ostree-1', version : '>=' + required_libostree)
 json_glib_dep = dependency('json-glib-1.0')
-appstream_dep = dependency('appstream', version : '>=0.12.0')
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0')
 libseccomp_dep = dependency('libseccomp', required : get_option('seccomp'))
 gir_dep = dependency('gobject-introspection-1.0', version : '>=1.40.0', required : get_option('gir'))

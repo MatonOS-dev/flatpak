@@ -4,7 +4,6 @@
 executable(
   'flatpak-system-helper',
   dependencies : base_deps + [
-    appstream_dep,
     json_glib_dep,
     libflatpak_common_base_dep,
     libflatpak_common_dep,

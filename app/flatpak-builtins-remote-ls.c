@@ -138,7 +138,6 @@ ls_remote (GPtrArray     *dirs,
   g_autofree char *match_arch = NULL;
   g_autofree char *match_branch = NULL;
   gboolean need_cache_data = FALSE;
-  gboolean need_appstream_data = FALSE;
 
   printer = flatpak_table_printer_new ();
 
@@ -159,10 +158,6 @@ ls_remote (GPtrArray     *dirs,
           strcmp (columns[j].name, "installed-size") == 0 ||
           strcmp (columns[j].name, "runtime") == 0)
         need_cache_data = TRUE;
-      if (strcmp (columns[j].name, "name") == 0 ||
-          strcmp (columns[j].name, "description") == 0 ||
-          strcmp (columns[j].name, "version") == 0)
-        need_appstream_data = TRUE;
     }
 
   GLNX_HASH_TABLE_FOREACH_KV (refs_hash, GHashTable *, refs, RemoteStateDirPair *, remote_state_dir_pair)
@@ -170,7 +165,6 @@ ls_remote (GPtrArray     *dirs,
       FlatpakDir *dir = remote_state_dir_pair->dir;
       FlatpakRemoteState *state = remote_state_dir_pair->state;
       const char *remote = state->remote_name;
-      g_autoptr(AsMetadata) mdata = NULL;
       g_autoptr(GHashTable) pref_hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL); /* value owned by refs */
       g_autoptr(GHashTable) names = g_hash_table_new_full ((GHashFunc)flatpak_decomposed_hash, (GEqualFunc)flatpak_decomposed_equal, (GDestroyNotify)flatpak_decomposed_unref, g_free);
 
@@ -236,20 +230,6 @@ ls_remote (GPtrArray     *dirs,
             g_hash_table_insert (names, flatpak_decomposed_ref (ref), g_strdup (checksum));
         }
 
-      if (need_appstream_data)
-        {
-          if (!opt_cached)
-            {
-              g_autoptr(GError) appstream_error = NULL;
-
-              if (!update_appstream (dirs, remote, NULL, FLATPAK_APPSTREAM_TTL,
-                                     TRUE, cancellable, &appstream_error))
-                g_info ("Failed to refresh AppStream data: %s", appstream_error->message);
-            }
-
-          mdata = as_metadata_new ();
-          flatpak_dir_load_appstream_data (dir, remote, NULL, mdata, NULL, NULL);
-        }
 
       keys = (FlatpakDecomposed **) g_hash_table_get_keys_as_array (names, &n_keys);
       qsort (keys, n_keys, sizeof (char *), (GCompareFunc) flatpak_decomposed_strcmp_p);
@@ -261,7 +241,6 @@ ls_remote (GPtrArray     *dirs,
           guint64 installed_size;
           guint64 download_size;
           g_autofree char *runtime = NULL;
-          AsComponent *cpt = NULL;
           gboolean has_sparse_cache;
           VarMetadataRef sparse_cache;
           g_autofree char *id = flatpak_decomposed_dup_id (ref);
@@ -294,9 +273,6 @@ ls_remote (GPtrArray     *dirs,
                 runtime = g_key_file_get_string (metakey, "Application", "runtime", NULL);
             }
 
-          if (need_appstream_data)
-            cpt = metadata_find_component (mdata, ref_str);
-
           if (app_runtime && runtime)
             {
               g_auto(GStrv) pref = g_strsplit (runtime, "/", 3);
@@ -310,27 +286,15 @@ ls_remote (GPtrArray     *dirs,
             {
               if (strcmp (columns[j].name, "name") == 0)
                 {
-                  const char *name = NULL;
-                  g_autofree char *readable_id = NULL;
-
-                  if (cpt)
-                    name = as_component_get_name (cpt);
-
-                  if (name == NULL)
-                    readable_id = flatpak_decomposed_dup_readable_id (ref);
-
-                  flatpak_table_printer_add_column (printer, name ? name : readable_id);
+                  g_autofree char *readable_id = flatpak_decomposed_dup_readable_id (ref);
+                  flatpak_table_printer_add_column (printer, readable_id);
                 }
               else if (strcmp (columns[j].name, "description") == 0)
                 {
-                  const char *comment = NULL;
-                  if (cpt)
-                      comment = as_component_get_summary (cpt);
-
-                  flatpak_table_printer_add_column (printer, comment);
+                  flatpak_table_printer_add_column (printer, "");
                 }
               else if (strcmp (columns[j].name, "version") == 0)
-                flatpak_table_printer_add_column (printer, cpt ? component_get_version_latest (cpt) : "");
+                flatpak_table_printer_add_column (printer, "");
               else if (strcmp (columns[j].name, "ref") == 0)
                 flatpak_table_printer_add_column (printer, ref_str);
               else if (strcmp (columns[j].name, "application") == 0)

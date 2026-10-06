@@ -180,35 +180,11 @@ flatpak_builtin_remote_info (int argc, char **argv, GCancellable *cancellable, G
       int len;
       int rows, cols;
       int width;
-      g_autoptr(AsMetadata) mdata = as_metadata_new ();
-      AsComponent *cpt = NULL;
       const char *version = NULL;
       const char *license = NULL;
       g_autofree char *arch = flatpak_decomposed_dup_arch (ref);
 
       flatpak_get_window_size (&rows, &cols);
-
-      if (!opt_cached)
-        {
-          g_autoptr(GError) appstream_error = NULL;
-
-          if (!update_appstream (dirs, remote, arch, FLATPAK_APPSTREAM_TTL,
-                                 TRUE, cancellable, &appstream_error))
-            g_info ("Failed to refresh AppStream data: %s", appstream_error->message);
-        }
-
-      flatpak_dir_load_appstream_data (preferred_dir, remote, arch, mdata, NULL, NULL);
-      cpt = metadata_find_component (mdata, flatpak_decomposed_get_ref (ref));
-      if (cpt)
-        {
-          const char *name = as_component_get_name (cpt);
-          const char *comment = as_component_get_summary (cpt);
-
-          print_wrapped (MIN (cols, 80), "\n%s - %s\n", name, comment);
-
-          version = component_get_version_latest (cpt);
-          license = as_component_get_project_license (cpt);
-        }
 
       if (commit_v)
         {

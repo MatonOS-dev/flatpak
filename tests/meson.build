@@ -141,7 +141,6 @@ foreach testcase : c_tests
     name,
     dependencies : options.get('dependencies', [
       base_deps,
-      appstream_dep,
       json_glib_dep,
       libflatpak_common_dep,
       libflatpak_common_base_dep,
@@ -222,7 +221,6 @@ executable(
   'mock-flatpak.c',
   dependencies : [
     base_deps,
-    appstream_dep,
     json_glib_dep,
     libflatpak_app_dep,
     libflatpak_common_dep,

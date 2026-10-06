@@ -27,7 +27,6 @@ libflatpak_app = static_library(
   'libflatpak-app',
   sources : sources + [parse_datetime[0]],
   dependencies : base_deps + [
-    appstream_dep,
     json_glib_dep,
     libflatpak_common_base_dep,
     libglnx_dep,
@@ -44,7 +43,6 @@ libflatpak_app = static_library(
 libflatpak_app_dep = declare_dependency(
   dependencies : [
     base_deps,
-    appstream_dep,
     json_glib_dep,
     libglnx_dep,
     libostree_dep,
@@ -120,7 +118,6 @@ endif
 flatpak_exe = executable(
   'flatpak',
   dependencies : base_deps + [
-    appstream_dep,
     json_glib_dep,
     libflatpak_app_dep,
     libflatpak_common_dep,
