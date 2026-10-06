@@ -23,7 +23,6 @@ tests_environment = {
   'FLATPAK_TESTS_DEBUG' : '1',
   'FLATPAK_TESTS_STRICT_TAP' : '1',
   'FLATPAK_TRIGGERSDIR' : project_source_root / 'triggers',
-  'FLATPAK_VALIDATE_ICON' : project_build_root / 'icon-validator' / 'flatpak-validate-icon',
   'G_TEST_BUILDDIR' : meson.current_build_dir(),
   'G_TEST_SRCDIR' : meson.current_source_dir(),
   'FLATPAK_BWRAP' : env_flatpak_bwrap,
