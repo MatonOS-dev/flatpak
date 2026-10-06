@@ -182,28 +182,6 @@ polkit_agent_dep = dependency('polkit-agent-1', version : '>=0.98', required : g
 build_system_helper = polkit_agent_dep.found()
 variant_schema_compiler = find_program('variant-schema-compiler')
 
-fuse_dep = dependency('fuse3', version : '>=3.1.1', required : false)
-if fuse_dep.found()
-  fuse_api = 31
-else
-  fuse_dep = dependency('fuse', version : '>=2.9.2')
-  fuse_api = 26
-endif
-
-fusermount = get_option('system_fusermount')
-if fusermount == ''
-  if fuse_api >= 30
-    fusermount_program = find_program('fusermount3', required: true)
-  else
-    fusermount_program = find_program('fusermount', required: true)
-  endif
-  if meson.version().version_compare('>=0.55')
-    fusermount = fusermount_program.full_path()
-  else
-    fusermount = fusermount_program.path()
-  endif
-endif
-
 xau_dep = dependency('xau', required : get_option('xauth'))
 libostree_dep = dependency('ostree-1', version : '>=' + required_libostree)
 json_glib_dep = dependency('json-glib-1.0')
@@ -349,8 +327,6 @@ cdata.set_quoted(
 )
 cdata.set_quoted('G_LOG_DOMAIN', 'flatpak')
 cdata.set_quoted('GETTEXT_PACKAGE', 'flatpak')
-cdata.set('FUSE_USE_VERSION', fuse_api)
-cdata.set_quoted('FUSERMOUNT', fusermount)
 
 if get_option('internal_tests')
   cdata.set('INCLUDE_INTERNAL_TESTS', 1)
@@ -433,7 +409,6 @@ summary(
     'Build selinux module' : build_selinux_module,
     'Build bubblewrap' : (get_option('system_bubblewrap') == ''),
     'Build dbus-proxy' : (get_option('system_dbus_proxy') == ''),
-    'fusermount executable' : fusermount,
     'Use sandboxed triggers' : get_option('sandboxed_triggers'),
     'Use seccomp' : libseccomp_dep.found(),
     'Privileged group' : get_option('privileged_group'),
@@ -484,7 +459,6 @@ subdir('profile')
 subdir('icon-validator')
 subdir('oci-authenticator')
 subdir('portal')
-subdir('revokefs')
 subdir('session-helper')
 subdir('scripts')
 

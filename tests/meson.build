@@ -20,12 +20,10 @@ tests_environment = {
   'FLATPAK_CONFIG_DIR' : '/dev/null',
   'FLATPAK_DATA_DIR' : '/dev/null',
   'FLATPAK_PORTAL' : project_build_root / 'portal' / 'flatpak-portal',
-  'FLATPAK_REVOKEFS_FUSE' : project_build_root / 'revokefs' / 'revokefs-fuse',
   'FLATPAK_TESTS_DEBUG' : '1',
   'FLATPAK_TESTS_STRICT_TAP' : '1',
   'FLATPAK_TRIGGERSDIR' : project_source_root / 'triggers',
   'FLATPAK_VALIDATE_ICON' : project_build_root / 'icon-validator' / 'flatpak-validate-icon',
-  'FUSERMOUNT' : fusermount,
   'G_TEST_BUILDDIR' : meson.current_build_dir(),
   'G_TEST_SRCDIR' : meson.current_source_dir(),
   'FLATPAK_BWRAP' : env_flatpak_bwrap,
@@ -47,8 +45,7 @@ if get_option('installed_tests')
     input : 'installed-tests.sh.in',
     output : 'installed-tests.sh',
     configuration : {
-      'FUSERMOUNT' : fusermount,
-      'FLATPAK_TRIGGERSDIR' : get_option('prefix') / get_option('datadir') / 'flatpak' / 'triggers',
+          'FLATPAK_TRIGGERSDIR' : get_option('prefix') / get_option('datadir') / 'flatpak' / 'triggers',
     },
     install_dir : installed_testdir,
   )
@@ -105,13 +102,11 @@ c_tests = [
   ['testlibrary', {
     'dependencies' : [
       base_deps,
-      fuse_dep,
       libflatpak_dep,
       libglnx_dep,
       libostree_dep,
     ],
     'extra_sources' : [
-      'can-use-fuse.c',
       'testlib.c',
     ],
     'timeout' : 150,
