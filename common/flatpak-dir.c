@@ -6194,10 +6194,15 @@ get_common_pull_options (GVariantBuilder     *builder,
       g_variant_builder_add (&hdr_builder, "(ss)", "Flatpak-Os-Info", os_info);
   }
 
+  /* MatonOS: dl.flathub.org answers 403 to object requests whose user agent
+   * starts with "libostree/" (verified 2026-10-06 from an Android VM: the
+   * same commit object is served for "flatpak/<version>"). An explicit
+   * User-Agent header replaces libostree's default with curl, so send
+   * Flatpak's own identity instead of appending to libostree's. */
+  g_variant_builder_add (&hdr_builder, "(ss)", "User-Agent", "flatpak/" PACKAGE_VERSION);
+
   g_variant_builder_add (builder, "{s@v}", "http-headers",
                          g_variant_new_variant (g_variant_builder_end (&hdr_builder)));
-  g_variant_builder_add (builder, "{s@v}", "append-user-agent",
-                         g_variant_new_variant (g_variant_new_string ("flatpak/" PACKAGE_VERSION)));
 
   update_interval = flatpak_progress_get_update_interval (progress);
 
