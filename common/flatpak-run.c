@@ -2278,7 +2278,9 @@ setup_seccomp (FlatpakBwrap   *bwrap,
   /* Blocklist the rest */
   seccomp_rule_add_exact (seccomp, SCMP_ACT_ERRNO (EAFNOSUPPORT), SCMP_SYS (socket), 1, SCMP_A0 (SCMP_CMP_GE, last_allowed_family + 1));
 
-  if (!glnx_open_anonymous_tmpfile_full (O_RDWR | O_CLOEXEC, "/tmp", &seccomp_tmpf, error))
+  /* Honour the launcher's writable per-app TMPDIR on Android, where the
+   * host /tmp is owned by shell. The exported seccomp filter is unchanged. */
+  if (!glnx_open_anonymous_tmpfile (O_RDWR | O_CLOEXEC, &seccomp_tmpf, error))
     return FALSE;
 
   r = seccomp_export_bpf (seccomp, seccomp_tmpf.fd);
