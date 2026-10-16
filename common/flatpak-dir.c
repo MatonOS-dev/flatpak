@@ -10117,11 +10117,12 @@ flatpak_dir_deploy (FlatpakDir          *self,
 
   if (created_extra_data)
     {
-      if (!apply_extra_data (self, checkoutdir_dfd, cancellable, error))
-        {
-          g_prefix_error (error, _("While trying to apply extra data: "));
-          return FALSE;
-        }
+      /* MatonOS: extra data is vendor code and is never applied by the
+       * installer, for any ref kind. The checksum-verified downloads stay
+       * packed in files/extra and are applied later, outside the installer,
+       * under the owning package's own UID by its generated package service
+       * (which exists for apps, runtimes and extensions alike).
+       * See device/maton/pc_x86_64/docs/FLATPAK-EXTRA-DATA.md. */
     }
 
   g_variant_lookup (commit_metadata, "xa.ref", "&s", &xa_ref);
